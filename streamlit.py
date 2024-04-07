@@ -13,7 +13,7 @@ class WebScraperApp:
         self.master = master
         master.title("Web Scraper")
 
-        self.keyword_label = st.sidebar.text_input("Enter the keyword:")
+        self.keyword_input = st.sidebar.text_input("Enter the keyword:")
         self.search_button = st.sidebar.button("Search")
         self.exit_button = st.sidebar.button("Exit")
 
@@ -21,7 +21,7 @@ class WebScraperApp:
         self.result_text = st.empty()
 
     def search_on_website(self):
-        keyword = self.keyword_label.value
+        keyword = self.keyword_input
         self.result_text.text("")  # 検索前にテキストをクリア
         self.scrape_website(keyword)
 
