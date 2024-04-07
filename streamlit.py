@@ -8,9 +8,6 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-# StreamlitアプリケーションでSelenium WebDriverを使用するために、Chrome WebDriverのパスを保存
-st.secrets["chrome_driver_path"] = "C:/Users/otatu/OneDrive/chrome-win32/chromedriver-win32/chromedriver.exe"
-
 class WebScraperApp:
     def __init__(self, master):
         self.master = master
@@ -30,11 +27,10 @@ class WebScraperApp:
 
     def scrape_website(self, keyword):
         coindesk_url = "https://www.coindeskjapan.com"
-        chrome_driver_path = st.secrets["chrome_driver_path"]
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--start-maximized")  # ウィンドウを最大化
         chrome_options.add_argument("--headless")  # ブラウザを非表示にする
-        driver = webdriver.Chrome(executable_path=chrome_driver_path, options=chrome_options)
+        driver = webdriver.Chrome(options=chrome_options)
         driver.get(coindesk_url)
 
         # 検索ボックスが見つかるまで待機
@@ -83,18 +79,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
