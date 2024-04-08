@@ -8,24 +8,19 @@ from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
 
-class WebScraperApp:
-    def __init__(self, master):
-        self.master = master
-        master.title("Web Scraper")
+# Streamlitアプリケーションのタイトルを設定
+st.title("Web Scraper")
 
-        self.keyword_input = st.sidebar.text_input("Enter the keyword:")
-        self.search_button = st.sidebar.button("Search")
-        self.exit_button = st.sidebar.button("Exit")
+# キーワードの入力ウィジェット
+keyword_input = st.text_input("Enter the keyword:")
 
-        # 検索結果を表示するテキストウィンドウ
-        self.result_text = st.empty()
+# 検索ボタンが押されたときの処理
+if st.button("Search"):
+    # 検索結果を表示するテキストウィジェット
+    result_text = st.empty()
 
-    def search_on_website(self):
-        keyword = self.keyword_input
-        self.result_text.text("")  # 検索前にテキストをクリア
-        self.scrape_website(keyword)
-
-    def scrape_website(self, keyword):
+    # Webスクレイピングを実行する関数
+    def scrape_website(keyword):
         coindesk_url = "https://www.coindeskjapan.com"
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--start-maximized")  # ウィンドウを最大化
@@ -43,10 +38,10 @@ class WebScraperApp:
         search_box.send_keys(keyword)
         search_box.send_keys(Keys.RETURN)
 
-        self.scrape_search_results(driver, keyword)
+        scrape_search_results(driver, keyword)
 
-    def scrape_search_results(self, driver, keyword):
-        # サイト内のすべての記事を取得
+    # 検索結果をスクレイピングする関数
+    def scrape_search_results(driver, keyword):
         try:
             while True:
                 response = requests.get(driver.current_url)
@@ -57,9 +52,9 @@ class WebScraperApp:
                 article_links = [(a.text.strip(), urljoin(driver.current_url, a['href'])) for a in soup.find_all('a', href=True)]
                 if article_links:
                     for article_title, article_link in article_links:
-                        self.result_text.text(f'{article_title}: {article_link}\n\n')
+                        result_text.text(f'{article_title}: {article_link}\n\n')
                 else:
-                    self.result_text.text('No articles found on the page.\n\n')
+                    result_text.text('No articles found on the page.\n\n')
 
                 # ページネーションのリンクがあれば次のページに移動
                 next_page_link = soup.find('a', class_='next page-numbers')
@@ -70,12 +65,8 @@ class WebScraperApp:
                     break  # ページネーションのリンクがなければ終了
 
         except requests.exceptions.RequestException as e:
-            self.result_text.text(f"Failed to retrieve the page. Error: {e}\n")
+            result_text.text(f"Failed to retrieve the page. Error: {e}\n")
 
-def main():
-    root = st
-    app = WebScraperApp(root)
-    app.search_on_website()
-
-if __name__ == "__main__":
-    main()
+    # キーワードが入力されている場合、Webスクレイピングを実行
+    if keyword_input:
+        scrape_website(keyword_input)
