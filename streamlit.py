@@ -13,7 +13,7 @@ class WebScraperApp:
         self.master = master
         master.title("Web Scraper")
 
-        self.keyword_input = st.sidebar.text_input("Enter the keyword:")
+        self.keyword_input = st.sidebar.text_input("調べたいキーワードを入力してください:")
         self.search_button = st.sidebar.button("Search")
         self.exit_button = st.sidebar.button("Exit")
 
