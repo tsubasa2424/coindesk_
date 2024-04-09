@@ -13,7 +13,7 @@ class WebScraperApp:
         self.master = master
         master.title("Web Scraper")
 
-        self.keyword_input = st.sidebar.text_input("調べたいキーワードを入力してください:")
+        self.keyword_input = st.sidebar.text_input("Enter the keyword:")
         self.search_button = st.sidebar.button("Search")
         self.exit_button = st.sidebar.button("Exit")
 
@@ -27,23 +27,23 @@ class WebScraperApp:
 
     def scrape_website(self, keyword):
         coindesk_url = "https://www.coindeskjapan.com"
+        chromedriver_path = "C:/Users/otatu/OneDrive/chrome-win32/chromedriver-win32/chromedriver.exe"
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument("--start-maximized")  # ウィンドウを最大化
         chrome_options.add_argument("--headless")  # ブラウザを非表示にする
-        driver = webdriver.Chrome(options=chrome_options)
+        driver = webdriver.Chrome(executable_path=chromedriver_path, options=chrome_options)
         driver.get(coindesk_url)
 
         # 検索ボックスが見つかるまで待機
         search_box = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.ID, "search-form-text"))
+            EC.presence_of_element_located((By.NAME, "s"))
         )
 
-        # サイト内検索ボックスにキーワードを自動入力して検索
+        # サイト内検索ボックスにキーワードを自動入力
         search_box.clear()
         search_box.send_keys(keyword)
         search_box.send_keys(Keys.RETURN)
 
-        # 検索結果をスクレイピング
         self.scrape_search_results(driver, keyword)
 
     def scrape_search_results(self, driver, keyword):
@@ -54,7 +54,7 @@ class WebScraperApp:
                 soup = BeautifulSoup(response.text, 'html.parser')
 
                 # 記事のタイトルとリンクを取得して表示
-                article_links = [(a.text.strip(), urljoin(driver.current_url, a['href'])) for a in soup.find_all('a', class_='article-title')]
+                article_links = [(a.text.strip(), urljoin(driver.current_url, a['href'])) for a in soup.find_all('a', href=True)]
                 if article_links:
                     for article_title, article_link in article_links:
                         self.result_text.text(f'{article_title}: {article_link}\n\n')
@@ -62,7 +62,7 @@ class WebScraperApp:
                     self.result_text.text('No articles found on the page.\n\n')
 
                 # ページネーションのリンクがあれば次のページに移動
-                next_page_link = soup.find('a', class_='next')
+                next_page_link = soup.find('a', class_='next page-numbers')
                 if next_page_link:
                     next_page_url = urljoin(driver.current_url, next_page_link['href'])
                     driver.get(next_page_url)
