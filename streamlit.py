@@ -1,12 +1,7 @@
 import streamlit as st
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from urllib.parse import urljoin
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 class WebScraperApp:
     def __init__(self, master):
@@ -27,34 +22,19 @@ class WebScraperApp:
 
     def scrape_website(self, keyword):
         coindesk_url = "https://www.coindeskjapan.com"
-        chromedriver_path = "C:/Users/otatu/OneDrive/chrome-win32/chromedriver-win32/chromedriver.exe"
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument("--start-maximized")  # ウィンドウを最大化
-        chrome_options.add_argument("--headless")  # ブラウザを非表示にする
-        driver = webdriver.Chrome(executable_path=chromedriver_path, options=chrome_options)
-        driver.get(coindesk_url)
+        search_url = urljoin(coindesk_url, f"/?s={keyword}")
 
-        # 検索ボックスが見つかるまで待機
-        search_box = WebDriverWait(driver, 10).until(
-            EC.presence_of_element_located((By.NAME, "s"))
-        )
+        self.scrape_search_results(search_url, keyword)
 
-        # サイト内検索ボックスにキーワードを自動入力
-        search_box.clear()
-        search_box.send_keys(keyword)
-        search_box.send_keys(Keys.RETURN)
-
-        self.scrape_search_results(driver, keyword)
-
-    def scrape_search_results(self, driver, keyword):
+    def scrape_search_results(self, search_url, keyword):
         try:
             while True:
-                response = requests.get(driver.current_url)
+                response = requests.get(search_url)
                 response.raise_for_status()
                 soup = BeautifulSoup(response.text, 'html.parser')
 
                 # 記事のタイトルとリンクを取得して表示
-                article_links = [(a.text.strip(), urljoin(driver.current_url, a['href'])) for a in soup.find_all('a', href=True)]
+                article_links = [(a.text.strip(), urljoin(search_url, a['href'])) for a in soup.find_all('a', href=True)]
                 if article_links:
                     for article_title, article_link in article_links:
                         self.result_text.text(f'{article_title}: {article_link}\n\n')
@@ -64,8 +44,8 @@ class WebScraperApp:
                 # ページネーションのリンクがあれば次のページに移動
                 next_page_link = soup.find('a', class_='next page-numbers')
                 if next_page_link:
-                    next_page_url = urljoin(driver.current_url, next_page_link['href'])
-                    driver.get(next_page_url)
+                    next_page_url = urljoin(search_url, next_page_link['href'])
+                    search_url = next_page_url
                 else:
                     break  # ページネーションのリンクがなければ終了
 
