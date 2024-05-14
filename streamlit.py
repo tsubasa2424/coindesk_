@@ -13,6 +13,7 @@ class WebScraperApp:
 
         # 検索結果を表示するテキストウィンドウ
         self.result_text = st.empty()
+        self.result = ""
 
     def search_on_website(self):
         keyword = self.keyword_input
@@ -37,7 +38,8 @@ class WebScraperApp:
                 article_links = [(a.text.strip(), urljoin(search_url, a['href'])) for a in soup.find_all('a', href=True)]
                 if article_links:
                     for article_title, article_link in article_links:
-                        self.result_text.text(f'{article_title}: {article_link}\n\n', append=True)
+                        self.result += f'{article_title}: {article_link}\n\n'
+                    self.result_text.text(self.result)
                 else:
                     self.result_text.text('No articles found on the page.\n\n')
 
