@@ -1,12 +1,11 @@
-import tkinter as tk
+import streamlit as st
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
 
 class WebScraperApp:
-    def __init__(self, master):
-        self.master = master
-        master.title("Web Scraper")
+    def __init__(self):
+        st.title("Web Scraper")
 
         self.keyword_input = st.sidebar.text_input("Enter the keyword:")
         self.search_button = st.sidebar.button("Search")
@@ -17,8 +16,9 @@ class WebScraperApp:
 
     def search_on_website(self):
         keyword = self.keyword_input
-        self.result_text.text("")  # 検索前にテキストをクリア
-        self.scrape_website(keyword)
+        if self.search_button:
+            self.result_text.text("")  # 検索前にテキストをクリア
+            self.scrape_website(keyword)
 
     def scrape_website(self, keyword):
         coindesk_url = "https://www.coindeskjapan.com"
@@ -37,7 +37,7 @@ class WebScraperApp:
                 article_links = [(a.text.strip(), urljoin(search_url, a['href'])) for a in soup.find_all('a', href=True)]
                 if article_links:
                     for article_title, article_link in article_links:
-                        self.result_text.text(f'{article_title}: {article_link}\n\n')
+                        self.result_text.text(f'{article_title}: {article_link}\n\n', append=True)
                 else:
                     self.result_text.text('No articles found on the page.\n\n')
 
@@ -53,8 +53,7 @@ class WebScraperApp:
             self.result_text.text(f"Failed to retrieve the page. Error: {e}\n")
 
 def main():
-    root = st
-    app = WebScraperApp(root)
+    app = WebScraperApp()
     app.search_on_website()
 
 if __name__ == "__main__":
