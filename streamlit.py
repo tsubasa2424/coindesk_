@@ -1,4 +1,4 @@
-import streamlit as st
+import tkinter as tk
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin
