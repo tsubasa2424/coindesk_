@@ -7,7 +7,7 @@ class WebScraperApp:
     def __init__(self):
         st.title("Web Scraper")
 
-        self.keyword_input = st.sidebar.text_input("Enter the keyword:")
+        self.keyword_input = st.sidebar.text_input("Enter the keyword:", value="Bitcoin")
         self.search_button = st.sidebar.button("Search")
         self.exit_button = st.sidebar.button("Exit")
 
